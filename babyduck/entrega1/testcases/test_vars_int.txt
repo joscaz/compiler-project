@@ -1,0 +1,7 @@
+program int_var;
+var x : int;
+main
+{
+    
+}
+end

@@ -1,0 +1,6 @@
+program float_var;
+var area : float;
+main
+{
+}
+end

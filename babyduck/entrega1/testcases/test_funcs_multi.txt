@@ -1,0 +1,7 @@
+program functions;
+void funcionA() [{}] ;
+void funcionB(x:int) [{}] ;
+main
+{
+}
+end

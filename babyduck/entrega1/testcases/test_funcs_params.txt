@@ -1,0 +1,11 @@
+program funciones;
+void printSuma(x: int, y: float)
+[
+    {
+        print(x, y);
+    }
+]
+main
+{
+}
+end

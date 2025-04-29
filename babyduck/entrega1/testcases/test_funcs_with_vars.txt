@@ -1,0 +1,11 @@
+program funcion_con_variables;
+void test_function_w_var(x:int)[
+    var local_var1, local_var2: int;
+    local_var3 : float;
+    {
+        print(local_var3);
+    }
+];
+main
+{}
+end

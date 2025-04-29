@@ -1,0 +1,11 @@
+program functions;
+void fooBar()
+[
+    {
+    }
+]
+;
+main
+{
+}
+end

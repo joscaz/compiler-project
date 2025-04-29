@@ -1,0 +1,8 @@
+program test_vars;
+var i, j, k : int;
+num1 : int;
+result, perimeter : float;
+main
+{
+}
+end
