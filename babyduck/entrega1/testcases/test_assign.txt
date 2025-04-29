@@ -1,0 +1,9 @@
+program assign_stmt;
+var x : int; y : float;
+main
+{
+    x = 10;
+    y = 3.1416;
+    x = x + 5 * 2;
+}
+end

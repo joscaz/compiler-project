@@ -1,0 +1,14 @@
+program comments;
+
+var
+  x : int; // var int x
+  y : float; // var float y
+
+// main func
+main
+{
+    x = 1 + 2     * 3; // test comment
+
+    print ( "Resultado: " , x ) ;
+} // end main
+end // end prog

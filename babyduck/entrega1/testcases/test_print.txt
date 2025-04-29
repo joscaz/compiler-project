@@ -1,0 +1,9 @@
+program print_stmt;
+main
+{
+    print("Hello world");
+    print("Entrega0");
+    print("Hola");
+    print("print");
+}
+end

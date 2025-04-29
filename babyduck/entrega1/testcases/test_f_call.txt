@@ -1,0 +1,14 @@
+program f_call_stmt;
+var foo : int;
+void dummyFunction(x : int)
+[
+    {
+        foo = x;
+    }
+];
+main
+{
+   dummyFunction(100);
+   print(foo);
+}
+end

@@ -1,0 +1,11 @@
+program while_stmt;
+var ctr : int;
+main
+{
+    ctr = 0;
+    while (ctr < 100) do {
+        print(ctr);
+        ctr = ctr + 1;
+    };
+}
+end

@@ -1,0 +1,12 @@
+program if_stmt;
+var condition : int;
+main
+{
+   if (condition > 0) {
+    print("Num positivo");
+   }
+   else {
+    print("numero es cero");
+   };
+}
+end
