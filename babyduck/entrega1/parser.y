@@ -35,12 +35,21 @@ DEC_VAR:
 ;
 
 VARS:
-    VAR list_id COLON TYPE SEMI DEC_VAR
+    VAR list_var
+;
+
+list_var:
+    list_id COLON TYPE SEMI extra_vars
 ;
 
 list_id:
-    ID
-    | ID COMMA list_id
+    ID COMMA list_id
+    | ID
+;
+
+extra_vars:
+    list_var
+    |
 ;
 
 TYPE:
@@ -164,5 +173,5 @@ int main(void) {
 }
 
 void yyerror(const char *s) {
-    fprintf(stderr, "ErrorL %s\n", s);
+    fprintf(stderr, "Error %s\n", s);
 }
