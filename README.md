@@ -20,3 +20,8 @@ Decidí optar por el hacerlo C en vez de Haskell debido a la complejidad del len
 - Se corrigió un error en la gramática el cual no dejaba añadir múltiples variables
 - Se creó un archivo .sh para automatizar la ejecución de los testcases
 - Se entregó BabyDuck - entrega #1 (Léxico y Sintaxis) en Canvas
+
+## Lunes 5 de mayo
+- Entrega 2 Semántica de Variables
+- Se agregaron puntos neurálgicos del lenguaje
+- Me di cuenta que como las herramientas que estoy utilizando permiten meter código en la gramática, no necesito necesariamente un árbol AST para el parseo
