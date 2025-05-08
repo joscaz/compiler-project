@@ -2,14 +2,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "datatype.h"
+#include "semantic_cube.h"
+#include "semantic_structures.h"
+
 void yyerror(const char *s);
 int yylex(void);
+
+// global vars for semantic analysis
+FunctionDirectory funcDir;
+char currentFunction[MAX_FUNC_NAME];
+DataType currentType;
+
+DataType exprType;
 %}
 
 %union {
     int    ival;
     float  fval;
     char   *sval;
+    DataType type;
 }
 
 %token PROGRAM VAR VOID MAIN END IF ELSE WHILE DO PRINT INT FLOAT
@@ -20,13 +32,35 @@ int yylex(void);
 %type <fval>    CTE_FLOAT
 %type <sval>    CTE_STRING
 %type <sval>    ID
+%type <type>    TYPE
+%type <type>    EXPRESION
+%type <type>    EXP
+%type <type>    TERMINO
+%type <type>    FACTOR
 
 %start programa
 
 %%
 
 programa:
-    PROGRAM ID SEMI DEC_VAR DEC_FUN MAIN BODY END
+    {
+        // Init semantic structures
+        initSemanticCube();
+        initFunctionDirectory(&funcDir);
+        strcpy(currentFunction, "global");
+    }
+    PROGRAM ID 
+    {
+        printf("Compiling program %s\n", $3);
+    }
+    SEMI DEC_VAR DEC_FUN MAIN 
+    {
+        strcpy(currentFunction, "main");
+    }
+    BODY END
+    {
+        printf("Semantic analysis completed\n");
+    }
 ;
 
 DEC_VAR:
@@ -39,12 +73,63 @@ VARS:
 ;
 
 list_var:
-    list_id COLON TYPE SEMI extra_vars
+    list_id COLON TYPE
+    {
+        currentType = $3;
+    } 
+    SEMI extra_vars
 ;
 
 list_id:
-    ID COMMA list_id
+    ID
+    {
+        // punto neuralgico - add var to cur context
+        int res;
+        if (strcmp(currentFunction, "global") == 0) {
+            res = addVar(&funcDir.globalVars, $1, currentType);
+        } else {
+            Function *func = findFunction(&funcDir, currentFunction);
+            if (func != NULL) {
+                res = addVar(&func->localVars, $1, currentType);    
+            } else {
+                res = 0;
+                yyerror("Function not found");
+            }
+        }
+
+        if (res == 0) {
+            char error[100];
+            sprintf(error, "Semantic error: Variable '%s' already declared", $1);
+            yyerror(error);
+        } else if (res == -1) {
+            yyerror("Semantic error: Variable limit exceeded");
+        }
+    } 
+    COMMA list_id
     | ID
+    {
+        // Punto neuralgico - add var to cur context
+        int res;
+        if (strcmp(currentFunction, "global") == 0) {
+            res = addVar(&funcDir.globalVars, $1, currentType);
+        } else {
+            Function *func = findFunction(&funcDir, currentFunction);
+            if (func != NULL) {
+                res = addVar(&func->localVars, $1, currentType);
+            } else {
+                res = 0;
+                yyerror("Function not found");
+            }
+        }
+        
+        if (res == 0) {
+            char error[100];
+            sprintf(error, "Semantic error: Variable '%s' already declared", $1);
+            yyerror(error);
+        } else if (res == -1) {
+            yyerror("Semantic error: Variable limit exceeded");
+        }
+    }
 ;
 
 extra_vars:
@@ -54,7 +139,13 @@ extra_vars:
 
 TYPE:
     INT
+    {
+        $$ = TYPE_INT;
+    }
     | FLOAT
+    {
+        $$ = TYPE_FLOAT;
+    }
 ;
 
 DEC_FUN:
@@ -63,11 +154,51 @@ DEC_FUN:
 ;
 
 FUNCS:
-    VOID ID LPAREN param RPAREN LBRACKET DEC_VAR BODY RBRACKET SEMI
+    VOID ID 
+    {
+        // punto neuralgico - add func to funcDir
+        int res = addFunction(&funcDir, $2);
+
+        if (res == 0) {
+            char error[100];
+            sprintf(error, "Semantic error: Function '%s' already declared", $2);
+            yyerror(error);
+        } else if (res == -1) {
+            yyerror("Semantic error: Functions limit exceeded");
+        }
+
+        // change context to new function
+        strcpy(currentFunction, $2);
+
+    }
+    LPAREN param RPAREN LBRACKET DEC_VAR BODY RBRACKET
+    {
+        // go back to global context
+        strcpy(currentFunction, "global");
+    }
+    SEMI
 ;
 
 param:
-    ID COLON TYPE extra_param
+    ID COLON TYPE
+    {
+        // punto neuralgico - add param to function
+        Function *func = findFunction(&funcDir, currentFunction);
+        if (func != NULL) {
+            int res = addParameter(func, $1, $3);
+
+            if (res == 0) {
+                char error[100];
+                sprintf(error, "Semantic error: Parameter '%s' already declared", $1);
+                yyerror(error);
+            } else if (res == -1) {
+                yyerror("Semantic error: Parameter limit exceeded");
+            }
+        } else {
+            yyerror("Semantic error: Function not found to add param");
+        }
+    } 
+    extra_param
     |
 ;
 
@@ -98,7 +229,13 @@ assign:
 ;
 
 condition:
-    IF LPAREN EXPRESION RPAREN BODY else_stmt SEMI
+    IF LPAREN EXPRESION
+    {
+        if ($3 != TYPE_BOOL) {
+            yyerror("Semantic error: if condition must be boolean expression"); // TODO CHECK LATER again
+        }
+    }
+    RPAREN BODY else_stmt SEMI
 ;
 
 else_stmt:
@@ -107,11 +244,28 @@ else_stmt:
 ;
 
 cycle:
-    WHILE LPAREN EXPRESION RPAREN DO BODY SEMI
+    WHILE LPAREN EXPRESION
+    {
+        if ($3 != TYPE_BOOL) {
+            yyerror("Semantic error: while condition must be boolean expression"); // TODO: CHECK LATER again
+        }
+    }
+    RPAREN DO BODY SEMI
 ;
 
 f_call:
-    ID LPAREN f_call_exp RPAREN SEMI
+    ID 
+    {
+        // check that function is declared
+        Function *func = findFunction(&funcDir, $1);
+        if (func == NULL) {
+            char error[100];
+            sprintf(error, "Semantic error: Function '%s' not declared", $1);
+            yyerror(error);
+        }
+    }
+
+    LPAREN f_call_exp RPAREN SEMI
 ;
 
 f_call_exp:
