@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "semantic_structures.h": "c",
+        "datatype.h": "c"
+    }
+}
