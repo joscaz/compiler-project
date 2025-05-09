@@ -25,3 +25,5 @@ Decidí optar por el hacerlo C en vez de Haskell debido a la complejidad del len
 - Entrega 2 Semántica de Variables
 - Se agregaron puntos neurálgicos del lenguaje
 - Me di cuenta que como las herramientas que estoy utilizando permiten meter código en la gramática, no necesito necesariamente un árbol AST para el parseo
+- Referencias: https://stackoverflow.com/questions/79084686/error-unknown-type-name-astnode-in-bison-parser-when-integrating-with-flex-le
+- Se creó el archivo make para definir las tareas a ejecutar para crear el binario ejecutable del compilador
