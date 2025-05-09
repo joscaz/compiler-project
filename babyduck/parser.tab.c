@@ -515,10 +515,10 @@ static const yytype_uint16 yyrline[] =
        0,    46,    46,    53,    57,    46,    67,    68,    72,    77,
       76,    85,    84,   109,   136,   137,   141,   145,   152,   153,
      158,   175,   157,   184,   183,   202,   206,   207,   211,   215,
-     216,   220,   221,   222,   223,   224,   228,   256,   255,   265,
-     266,   271,   270,   281,   280,   295,   296,   297,   301,   305,
-     306,   310,   311,   315,   316,   317,   318,   322,   323,   324,
-     328,   329,   330,   334,   338,   339,   340,   341,   342,   343
+     216,   220,   221,   222,   223,   224,   228,   233,   232,   242,
+     243,   248,   247,   258,   257,   272,   273,   274,   278,   282,
+     283,   287,   288,   292,   293,   294,   295,   299,   300,   301,
+     305,   306,   307,   311,   315,   316,   317,   318,   319,   320
 };
 #endif
 
@@ -1656,25 +1656,25 @@ yyreduce:
     break;
 
   case 37:
-#line 256 "parser.y"
+#line 233 "parser.y"
     {
         if ((yyvsp[(3) - (3)].type) != TYPE_BOOL) {
-            yyerror("Sematinc error: if condition must be boolean expression"); // TODO CHECK LATER again
+            yyerror("Semantic error: if condition must be boolean expression"); // TODO CHECK LATER again
         }
     ;}
     break;
 
   case 41:
-#line 271 "parser.y"
+#line 248 "parser.y"
     {
         if ((yyvsp[(3) - (3)].type) != TYPE_BOOL) {
-            yyerror("Sematinc error: while condition must be boolean expression"); // TODO: CHECK LATER again
+            yyerror("Semantic error: while condition must be boolean expression"); // TODO: CHECK LATER again
         }
     ;}
     break;
 
   case 43:
-#line 281 "parser.y"
+#line 258 "parser.y"
     {
         // check that function is declared
         Function *func = findFunction(&funcDir, (yyvsp[(1) - (1)].sval));
@@ -1902,7 +1902,7 @@ yyreturn:
 }
 
 
-#line 346 "parser.y"
+#line 323 "parser.y"
 
 
 int main(void) {

@@ -1,0 +1,40 @@
+program factorial;
+
+var
+    n, result : int;
+    x, y : float;
+
+void multiply(a : int, b : float) [
+    var temp : float;
+    {
+        temp = a * b;
+        print("Result of multiplication:", temp);
+    }
+]
+
+main {
+    n = 5;
+    result = 1;
+    
+    /* Calcular factorial de n */
+    while (n > 0) do {
+        result = result * n;
+        n = n - 1;
+    };
+    
+    print("Factorial:", result);
+    
+    x = 3.5;
+    y = 2.0;
+    
+    /* Llamar a la función */
+    multiply(result, x);
+    
+    if (result != 120) {
+        print("Error in calculation");
+    } else {
+        print("Calculation correct");
+    };
+}
+
+end
