@@ -7,7 +7,7 @@ typedef enum {
     TYPE_INT = 0,
     TYPE_FLOAT = 1,
     TYPE_BOOL = 2,
-    TYPE_STRING = 3
+    TYPE_STRING = 3 // added since have strings as CTEs
 } DataType;
 
 #endif // DATATYPE_H
