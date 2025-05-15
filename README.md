@@ -27,3 +27,9 @@ Decidí optar por el hacerlo C en vez de Haskell debido a la complejidad del len
 - Me di cuenta que como las herramientas que estoy utilizando permiten meter código en la gramática, no necesito necesariamente un árbol AST para el parseo
 - Referencias: https://stackoverflow.com/questions/79084686/error-unknown-type-name-astnode-in-bison-parser-when-integrating-with-flex-le
 - Se creó el archivo make para definir las tareas a ejecutar para crear el binario ejecutable del compilador
+
+## Miércoles 14 de mayo
+- Entrega #3 (Código de Expresiones y Estatutos lineales)
+- Se creó la memoria virtual
+- Se crearon los cuádruplos, junto con su fila
+- Se añadió el tipo de dato string
