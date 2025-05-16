@@ -5,6 +5,8 @@
 #include "datatype.h"
 #include "semantic_cube.h"
 #include "semantic_structures.h"
+#include "virtual_memory.h"
+#include "quadruple_generator.h"
 
 void yyerror(const char *s);
 int yylex(void);
@@ -14,6 +16,10 @@ FunctionDirectory funcDir;
 char currentFunction[MAX_FUNC_NAME];
 DataType currentType;
 
+// to generate quadruples
+QuadrupleGenerator quadGenerator;
+
+// for exp type checking
 DataType exprType;
 %}
 
@@ -48,6 +54,9 @@ programa:
         initSemanticCube();
         initFunctionDirectory(&funcDir);
         strcpy(currentFunction, "global");
+
+        // init quad struct
+        initQuadrupleGenerator(&quadGenerator);
     }
     PROGRAM ID 
     {
@@ -59,7 +68,8 @@ programa:
     }
     BODY END
     {
-        printf("Semantic analysis completed\n");
+        printf("Compilation completed successfully\n");
+        printGeneratedQuadruples(&quadGenerator);
     }
 ;
 
@@ -84,13 +94,17 @@ list_id:
     ID
     {
         // punto neuralgico - add var to cur context
+        int address;
         int res;
+        // assign virtual mem based on type and scope
         if (strcmp(currentFunction, "global") == 0) {
-            res = addVar(&funcDir.globalVars, $1, currentType);
+            address = getNextAddress(&quadGenerator.memCounters, currentType, 1);
+            res = addVar(&funcDir.globalVars, $1, currentType, address);
         } else {
+            address = getNextAddress(&quadGenerator.memCounters, currentType, 0);
             Function *func = findFunction(&funcDir, currentFunction);
             if (func != NULL) {
-                res = addVar(&func->localVars, $1, currentType);    
+                res = addVar(&func->localVars, $1, currentType, address);    
             } else {
                 res = 0;
                 yyerror("Function not found");
@@ -109,13 +123,17 @@ list_id:
     | ID
     {
         // Punto neuralgico - add var to cur context
+        int address;
         int res;
+        // assign virtual mem based on type and scope
         if (strcmp(currentFunction, "global") == 0) {
-            res = addVar(&funcDir.globalVars, $1, currentType);
+            address = getNextAddress(&quadGenerator.memCounters, currentType, 1);
+            res = addVar(&funcDir.globalVars, $1, currentType, address);
         } else {
+            address = getNextAddress(&quadGenerator.memCounters, currentType, 0);
             Function *func = findFunction(&funcDir, currentFunction);
             if (func != NULL) {
-                res = addVar(&func->localVars, $1, currentType);
+                res = addVar(&func->localVars, $1, currentType, address);
             } else {
                 res = 0;
                 yyerror("Function not found");
@@ -170,9 +188,18 @@ FUNCS:
         // change context to new function
         strcpy(currentFunction, $2);
 
+        // store starting quadruple for function
+        Function *func = findFunction(&funcDir, $2);
+        if (func != NULL) {
+            func->startQuad = quadGenerator.quadQueue.count;
+        }
+
     }
     LPAREN param RPAREN LBRACKET DEC_VAR BODY RBRACKET
     {
+        // add ENDPROC quad
+        addQuadruple(&quadGenerator.quadQueue, OP_ENDPROC, -1, -1, -1);
+
         // go back to global context
         strcpy(currentFunction, "global");
     }
@@ -185,7 +212,9 @@ param:
         // punto neuralgico - add param to function
         Function *func = findFunction(&funcDir, currentFunction);
         if (func != NULL) {
-            int res = addParameter(func, $1, $3);
+            // assign virtual mem address for param
+            int address = getNextAddress(&quadGenerator.memCounters, $3, 0); // 0 pq es local
+            int res = addParameter(func, $1, $3, address);
 
             if (res == 0) {
                 char error[100];
@@ -225,7 +254,21 @@ STATEMENT:
 ;
 
 assign:
-    ID ASSIGN EXPRESION SEMI
+    ID ASSIGN
+    {
+        // check if var exists
+        Variable *var = findVariable(&funcDir, currentFunction, $1);
+        if (var == NULL) {
+            char error[100];
+            sprintf(error, "Semantic error: Variable '%s' not declared", $1);
+            yyerror(error);
+        }
+    }
+    EXPRESION SEMI
+    {
+        // generate assign quad
+        generateAssignment(&quadGenerator, $1, &funcDir, currentFunction);
+    }
 ;
 
 condition:
@@ -285,26 +328,71 @@ print_list:
 
 print_elem:
     EXPRESION
+    {
+        // generate print quad
+        generatePrint(&quadGenerator);
+    }
     | CTE_STRING
+    {
+        processStringConstant(&quadGenerator, $1);
+        generatePrint(&quadGenerator);
+    }
 ;
 
 EXPRESION:
     EXP
+    {
+        $$ = $1;
+    }
     | EXP LT EXP
+    {
+        processRelationalOperator(&quadGenerator, OP_LT);
+        $$ = TYPE_BOOL;
+    }
     | EXP GT EXP
+    {
+        processRelationalOperator(&quadGenerator, OP_GT);
+        $$ = TYPE_BOOL;
+    }
     | EXP NEQ EXP
+    {
+        processRelationalOperator(&quadGenerator, OP_NEQ);
+        $$ = TYPE_BOOL;
+    }
 ;
 
 EXP:
     TERMINO
+    {
+        $$ = $1;
+    }
     | TERMINO PLUS EXP
+    {
+        processOperator(&quadGenerator, OP_PLUS);
+        $$ = peekType(&quadGenerator.types);
+    }
     | TERMINO MINUS EXP
+    {
+        processOperator(&quadGenerator, OP_MINUS);
+        $$ = peekType(&quadGenerator.types);
+    }
 ;
 
 TERMINO:
     FACTOR
+    {
+        $$ = $1;
+    }
   | FACTOR MULT list_term
+    {
+        processOperator(&quadGenerator, OP_MULT);
+        $$ = peekType(&quadGenerator.types);
+    }
   | FACTOR DIV list_term
+  {
+        processOperator(&quadGenerator, OP_DIV);
+        $$ = peekType(&quadGenerator.types);
+  }
 ;
 
 list_term:
@@ -313,11 +401,40 @@ list_term:
 
 FACTOR:
     LPAREN EXPRESION RPAREN
+    {
+        $$ = $2;
+    }
   | PLUS FACTOR
+  {
+    $$ = $2;
+  }
   | MINUS FACTOR
+  {
+    $$ = $2;
+  }
   | ID
+  {
+    Variable *var = findVariable(&funcDir, currentFunction, $1);
+    if (var == NULL) {
+        char error[100];
+        sprintf(error, "Semantic error: Variable '%s' not declared", $1);
+        yyerror(error);
+        $$ = TYPE_ERROR;
+    } else {
+        processOperand(&quadGenerator, $1, &funcDir, currentFunction);
+        $$ = var->type;
+    }
+  }
   | CTE_INT
+  {
+    processIntConstant(&quadGenerator, $1);
+    $$ = TYPE_INT;
+  }
   | CTE_FLOAT
+  {
+    processFloatConstant(&quadGenerator, $1);
+    $$ = TYPE_FLOAT;
+  }
 ;
 
 %%

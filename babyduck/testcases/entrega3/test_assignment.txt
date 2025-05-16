@@ -1,0 +1,28 @@
+program TestAssignment;
+var 
+    a, b, c, result : int;
+    x, y, z : float;
+
+main {
+    a = 5;
+    b = 10;
+    c = 15;
+    
+    x = 3.14;
+    y = 2.71;
+    z = 1.618;
+    
+    result = a + b * c - (a + b);
+    x = y * z / (x + y) - z;
+    
+    // Asignación de int a float (conversión implícita)
+    y = a + b;
+    
+    print("Result: ");
+    print(result);
+    print("X value: ");
+    print(x);
+    print("Y value: ");
+    print(y);
+}
+end

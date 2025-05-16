@@ -1,0 +1,30 @@
+program TestPrint;
+var 
+    a, b : int;
+    x : float;
+
+main 
+{
+    a = 42;
+    b = 100;
+    x = 3.1416;
+    
+    print("Testing print statements");
+    print("Integer values:");
+    print(a);
+    print(b);
+    
+    print("Float value:");
+    print(x);
+    
+    print("Expression results:");
+    print(a + b);
+    print(x * 2.0);
+    print(a < b);
+    
+    print("Multiple values:");
+    print(a, b, x);
+    print("The value of a is: ", a);
+    print("The sum of a and b is: ", a + b);
+}
+end

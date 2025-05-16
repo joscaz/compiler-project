@@ -1,0 +1,26 @@
+program TestExp;
+var 
+    a, b, c : int;
+    x, y, z : float;
+
+main {
+    a = 5;
+    b = 10;
+    c = a + b * 2;
+    
+    x = 3.14;
+    y = 2.5;
+    z = x / y + 1.0;
+    
+    print(a);
+    print(b);
+    print(c);
+    print(x);
+    print(y);
+    print(z);
+    
+    print(a < b);
+    print(c > a + b);
+    print(x != y);
+}
+end
