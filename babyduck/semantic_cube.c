@@ -67,7 +67,7 @@ void initSemanticCube() {
     // float -> int not allowed in this case
 }
 
-DataType getResultType(DataType left, DataType right, Operator op) {
+DataType getResultType(DataType left, DataType right, QuadOperator op) {
     // Verify that types are inside the range
     if (left < 0 || left >= NUM_TYPES || right < 0 || right >= NUM_TYPES || op < 0 || op >= NUM_OPERATORS) {
         return TYPE_ERROR; // if the condition meets means that is not valid

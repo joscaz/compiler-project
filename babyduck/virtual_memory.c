@@ -93,6 +93,8 @@ int getNextConstAddress(MemoryCounters *counters, DataType type) {
     if (address == -1) {
         fprintf(stderr, "Error: Memory overflow in constants var allocation\n");
     }
+
+    return address;
 }
 
 // get type from address

@@ -18,7 +18,7 @@ Variable* findVar(VarTable *table, const char *name) {
     return NULL;
 }
 
-int addVar(VarTable *table, const char *name, DataType type) {
+int addVar(VarTable *table, const char *name, DataType type, int address) {
     // Verify if var already exists
     if (findVar(table, name) != NULL) {
         return 0; // Variable already exists
@@ -31,6 +31,7 @@ int addVar(VarTable *table, const char *name, DataType type) {
 
     strcpy(table->vars[table->count].name, name);
     table->vars[table->count].type = type;
+    table->vars[table->count].address = address;
     table->count++;
 
     return 1;
@@ -65,13 +66,14 @@ int addFunction(FunctionDirectory *dir, const char *name) {
 
     strcpy(dir->functions[dir->count].name, name);
     dir->functions[dir->count].paramCount = 0;
+    dir->functions[dir->count].startQuad = -1; // no es parte de esta entrega pero servirá dsps
     initVarTable(&dir->functions[dir->count].localVars);
     dir->count++;
 
     return 1;
 }
 
-int addParameter(Function *func, const char *name, DataType type) {
+int addParameter(Function *func, const char *name, DataType type, int address) {
     // Verify if param already exists
     for (int i = 0; i < func->paramCount; i++) {
         if (strcmp(func->params[i].name, name) == 0) {
@@ -87,11 +89,13 @@ int addParameter(Function *func, const char *name, DataType type) {
     // add parameter
     strcpy(func->params[func->paramCount].name, name);
     func->params[func->paramCount].type = type;
-    func->paramCount++;
+    func->params[func->paramCount].address = address;
 
     // add it as local var as well
-    addVar(&func->localVars, name, type);
+    addVar(&func->localVars, name, type, address);
 
+    func->paramCount++;
+    
     return 1;
 }
 

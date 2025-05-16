@@ -6,6 +6,7 @@
 #define SEMANTIC_CUBE_H
 
 #include "datatype.h"
+#include "quadruple.h"
 
 // // Definition for Babyduck types
 // typedef enum {
@@ -16,16 +17,7 @@
 // } DataType;
 
 // Operators definition
-typedef enum {
-    OP_PLUS = 0,
-    OP_MINUS = 1,
-    OP_MULT = 2,
-    OP_DIV = 3,
-    OP_LT = 4,
-    OP_GT = 5,
-    OP_NEQ = 6,
-    OP_ASSIGN = 7
-} Operator;
+typedef QuadOperator Operator;
 
 #define NUM_TYPES 3
 #define NUM_OPERATORS 8
@@ -38,6 +30,6 @@ extern DataType semanticCube[NUM_TYPES][NUM_TYPES][NUM_OPERATORS];
 // Initialize semantic cube
 void initSemanticCube();
 
-DataType getResultType(DataType left, DataType right, Operator op);
+DataType getResultType(DataType left, DataType right, QuadOperator op);
 
 #endif // SEMANTIC_CUBE_H
