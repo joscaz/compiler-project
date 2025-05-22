@@ -136,7 +136,8 @@ void generateAssignment(QuadrupleGenerator *generator, const char *varName, Func
     // check type
     if (var->type != expType && 
         !(var->type == TYPE_FLOAT && expType == TYPE_INT)) { // allow int to float
-            const char* varTypeStr = "UNKNOWN";
+        
+        const char* varTypeStr = "UNKNOWN";
         const char* expTypeStr = "UNKNOWN";
         
         switch(var->type) {
@@ -158,7 +159,6 @@ void generateAssignment(QuadrupleGenerator *generator, const char *varName, Func
         fprintf(stderr, "Error: Type mismatch in assignment - Cannot assign %s to %s (var: %s)\n", 
                 expTypeStr, varTypeStr, varName);
         return;
-
     }
 
     addQuadruple(&generator->quadQueue, OP_ASSIGN, expRes, -1, var->address);
@@ -204,6 +204,116 @@ void processRelationalOperator(QuadrupleGenerator *generator, QuadOperator op) {
 
     pushOperand(&generator->operands, resAddress);
     pushType(&generator->types, TYPE_BOOL);
+}
+
+// ===== NUEVAS FUNCIONES PARA ESTATUTOS CONDICIONALES Y CÍCLICOS =====
+
+// Obtener el contador actual de cuádruplos
+int getCurrentQuadCounter(QuadrupleGenerator *generator) {
+    return generator->quadQueue.count;
+}
+
+// Inicia un estatuto if - genera cuadruplo GOTOF después de evaluar condición
+void startIfStatement(QuadrupleGenerator *generator) {
+    if (isOperandStackEmpty(&generator->operands)) {
+        fprintf(stderr, "Error: Missing condition for if statement\n");
+        return;
+    }
+    
+    // Verificar que la condición sea de tipo booleano
+    if (peekType(&generator->types) != TYPE_BOOL) {
+        fprintf(stderr, "Error: Condition for if statement must be boolean\n");
+        return;
+    }
+    
+    // Obtener la dirección del resultado de la condición
+    int condition = popOperand(&generator->operands);
+    popType(&generator->types); // Ya verificamos que es booleano
+    
+    // Generar cuadruplo GOTOF (ir a falso) con destino pendiente
+    int quadIndex = addQuadruple(&generator->quadQueue, OP_GOTOF, condition, -1, -1);
+    
+    // Guardar la posición del cuadruplo para actualizar después
+    pushJump(&generator->jumps, quadIndex);
+}
+
+// Genera salto al final del if cuando hay un else
+void processElseStatement(QuadrupleGenerator *generator) {
+    // Generar GOTO al final del if-else con destino pendiente
+    int gotoIndex = addQuadruple(&generator->quadQueue, OP_GOTO, -1, -1, -1);
+    
+    // Obtener el índice del GOTOF para actualizarlo
+    int gotofIndex = popJump(&generator->jumps);
+    
+    // Actualizar el GOTOF para saltar al inicio del else (cuadruplo actual)
+    updateQuadrupleResult(&generator->quadQueue, gotofIndex, getCurrentQuadCounter(generator));
+    
+    // Guardar la posición del GOTO para actualizarlo al final del if-else
+    pushJump(&generator->jumps, gotoIndex);
+}
+
+// Termina un estatuto if-else y actualiza los saltos pendientes
+void endIfStatement(QuadrupleGenerator *generator) {
+    if (isJumpStackEmpty(&generator->jumps)) {
+        fprintf(stderr, "Error: No pending jumps to resolve for if statement\n");
+        return;
+    }
+    
+    // Obtener el índice del salto pendiente (GOTOF o GOTO)
+    int jumpIndex = popJump(&generator->jumps);
+    
+    // Actualizar el cuadruplo para saltar al final del if o if-else
+    updateQuadrupleResult(&generator->quadQueue, jumpIndex, getCurrentQuadCounter(generator));
+}
+
+// Marca el inicio de un ciclo while
+void startWhileLoop(QuadrupleGenerator *generator) {
+    // Guardar la posición actual para regresar después de cada iteración
+    pushJump(&generator->jumps, getCurrentQuadCounter(generator));
+}
+
+// Genera cuadruplo GOTOF después de evaluar condición del while
+void processWhileCondition(QuadrupleGenerator *generator) {
+    if (isOperandStackEmpty(&generator->operands)) {
+        fprintf(stderr, "Error: Missing condition for while loop\n");
+        return;
+    }
+    
+    // Verificar que la condición sea de tipo booleano
+    if (peekType(&generator->types) != TYPE_BOOL) {
+        fprintf(stderr, "Error: Condition for while loop must be boolean\n");
+        return;
+    }
+    
+    // Obtener la dirección del resultado de la condición
+    int condition = popOperand(&generator->operands);
+    popType(&generator->types); // Ya verificamos que es booleano
+    
+    // Generar cuadruplo GOTOF (ir a falso) con destino pendiente
+    int quadIndex = addQuadruple(&generator->quadQueue, OP_GOTOF, condition, -1, -1);
+    
+    // Guardar la posición del GOTOF para actualizar después
+    pushJump(&generator->jumps, quadIndex);
+}
+
+// Termina un ciclo while y genera cuadruplo de salto al inicio
+void endWhileLoop(QuadrupleGenerator *generator) {
+    if (isJumpStackEmpty(&generator->jumps) || generator->jumps.top < 1) {
+        fprintf(stderr, "Error: No pending jumps to resolve for while loop\n");
+        return;
+    }
+    
+    // Obtener el índice del GOTOF
+    int gotofIndex = popJump(&generator->jumps);
+    
+    // Obtener el índice de inicio del ciclo
+    int startIndex = popJump(&generator->jumps);
+    
+    // Generar cuadruplo GOTO al inicio del ciclo
+    addQuadruple(&generator->quadQueue, OP_GOTO, -1, -1, startIndex);
+    
+    // Actualizar el GOTOF para saltar al final del ciclo (cuadruplo siguiente)
+    updateQuadrupleResult(&generator->quadQueue, gotofIndex, getCurrentQuadCounter(generator));
 }
 
 void printGeneratedQuadruples(QuadrupleGenerator *generator) {

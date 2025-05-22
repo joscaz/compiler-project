@@ -272,28 +272,66 @@ assign:
 ;
 
 condition:
-    IF LPAREN EXPRESION
+    IF LPAREN 
     {
-        if ($3 != TYPE_BOOL) {
-            yyerror("Semantic error: if condition must be boolean expression"); // TODO CHECK LATER again
+        // process the expression before evaluating it
+    }
+    EXPRESION
+    {
+        if ($4 != TYPE_BOOL) {
+            yyerror("Semantic error: if condition must be boolean expression");
+        }
+        
+        // GOTOF quadruple after evaluating condition
+        startIfStatement(&quadGenerator);
+    }
+    RPAREN BODY 
+    {
+        // For an IF with no ELSE, we need to fill the jump location
+        // to the end of the IF statement
+        if (yychar != ELSE) {
+            endIfStatement(&quadGenerator);
         }
     }
-    RPAREN BODY else_stmt SEMI
+    else_stmt SEMI
 ;
 
 else_stmt:
-    ELSE BODY
+    ELSE 
+    {
+        // Process the start of ELSE - generate jump to end of if-else
+        // and fill the GOTOF jump location
+        processElseStatement(&quadGenerator);
+    }
+    BODY
+    {
+        // Fill the GOTO jump location at the end of if-else
+        endIfStatement(&quadGenerator);
+    }
     |
 ;
 
 cycle:
-    WHILE LPAREN EXPRESION
+    WHILE 
     {
-        if ($3 != TYPE_BOOL) {
-            yyerror("Semantic error: while condition must be boolean expression"); // TODO: CHECK LATER again
-        }
+        // Mark the start of the while loop
+        startWhileLoop(&quadGenerator);
     }
-    RPAREN DO BODY SEMI
+    LPAREN EXPRESION
+    {
+        if ($4 != TYPE_BOOL) {
+            yyerror("Semantic error: while condition must be boolean expression");
+        }
+        
+        // Process condition and generate GOTOF quadruple
+        processWhileCondition(&quadGenerator);
+    }
+    RPAREN DO BODY 
+    {
+        // Generate GOTO to beginning of while loop and fill the GOTOF jump
+        endWhileLoop(&quadGenerator);
+    }
+    SEMI
 ;
 
 f_call:

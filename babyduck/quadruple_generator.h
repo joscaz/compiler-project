@@ -41,6 +41,17 @@ void processRelationalOperator(QuadrupleGenerator *generator, QuadOperator op);
 
 int getNextTemp(QuadrupleGenerator *generator, DataType type);
 
+// Functions for conditional statements (if-else)
+int getCurrentQuadCounter(QuadrupleGenerator *generator);
+void startIfStatement(QuadrupleGenerator *generator);
+void processElseStatement(QuadrupleGenerator *generator);
+void endIfStatement(QuadrupleGenerator *generator);
+
+// Functions for loop statements (while-do)
+void startWhileLoop(QuadrupleGenerator *generator);
+void processWhileCondition(QuadrupleGenerator *generator);
+void endWhileLoop(QuadrupleGenerator *generator);
+
 void printGeneratedQuadruples(QuadrupleGenerator *generator);
 
 #endif // QUADRUPLE_GENERATOR_H 

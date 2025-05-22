@@ -50,6 +50,9 @@ int addQuadruple(QuadQueue *queue, QuadOperator op, int op1, int op2, int res);
 // get quadruple at specific idx
 Quadruple* getQuadruple(QuadQueue *queue, int idx, int res);
 
+// update the result field of a quadruple at a specific index
+void updateQuadrupleResult(QuadQueue *queue, int idx, int res);
+
 // custom print of quadruples
 void printQuadruples(QuadQueue *queue);
 

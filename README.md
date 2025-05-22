@@ -33,3 +33,9 @@ Decidí optar por el hacerlo C en vez de Haskell debido a la complejidad del len
 - Se creó la memoria virtual
 - Se crearon los cuádruplos, junto con su fila
 - Se añadió el tipo de dato string
+
+## Miércoles 21 mayo
+- Entrega #4 (Código de Estatutos y uso de Dir Virtuales)
+- Generación de cuádruplos para estatutos cíclicos y condicionales
+- Memoria virtual funciona correctamente
+- Pequeños cambios en puntos neurálgicos dentro de la gramática (archivo parser.y)

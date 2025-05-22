@@ -1,0 +1,59 @@
+program testConditionalLoop;
+var
+    a, b, c: int;
+    f, g: float;
+main
+{
+    a = 5;
+    b = 10;
+    c = 0;
+    f = 5.5;
+    g = 2.2;
+    
+    // Test if statement without else
+    if (a < b) {
+        print("a is less than b");
+        c = a + b;
+    };
+    
+    // Test if-else statement
+    if (f > g) {
+        print("f is greater than g");
+        g = f + g;
+    } else {
+        print("f is not greater than g");
+        f = g * 2.0;
+    };
+    
+    // Test while-do loop
+    a = 1;
+    while (a < 5) do {
+        print("Iteration: ");
+        print(a);
+        a = a + 1;
+    };
+    
+    // Nested if-else
+    if (a != b) {
+        if (c < b) {
+            print("Nested if: c < b");
+        } else {
+            print("Nested else: c >= b");
+        };
+    } else {
+        print("Outer else: a == b");
+    };
+    
+    // While loop with if statement
+    a = 1;
+    while (a < 4) do {
+        if (a != 2) {
+            print("a is not 2, a = ");
+            print(a);
+        } else {
+            print("a is 2");
+        };
+        a = a + 1;
+    };
+}
+end 
