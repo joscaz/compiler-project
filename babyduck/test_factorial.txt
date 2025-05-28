@@ -1,0 +1,22 @@
+program factorial;
+
+var
+    n, factorial, i : int;
+
+main {
+    print("Calculando factorial de 5");
+    n = 5;
+    factorial = 1;
+    i = 1;
+    
+    while i < n + 1 do {
+        factorial = factorial * i;
+        print("Factorial parcial:");
+        print(factorial);
+        i = i + 1;
+    };
+    
+    print("El factorial de 5 es:");
+    print(factorial);
+}
+end 

@@ -70,7 +70,7 @@ int addStringConstant(ConstantTable *table, const char *val, int address) {
     table->constants[table->count].value.stringVal[MAX_STRING_LENGTH-1] = '\0';
     table->constants[table->count].address = address;
 
-    return table->count;
+    return table->count++;
 }
 
 int findIntConstant(ConstantTable *table, int val) {

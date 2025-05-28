@@ -1,0 +1,46 @@
+program control_flow;
+
+var
+    x, y, mayor, i : int;
+
+void comparar_numeros(a : int, b : int) [
+    {
+        print("Comparando numeros:");
+        print(a);
+        print(b);
+        
+        if (a > b) {
+            print("El primer numero es mayor");
+        } else {
+            print("El segundo numero es mayor o igual");
+        };
+    }
+];
+
+main {
+    x = 10;
+    y = 5;
+    i = 1;
+    
+    print("Programa de control de flujo");
+    
+    comparar_numeros(x, y);
+    comparar_numeros(y, x);
+    
+    print("Contando del 1 al 5:");
+    while (i < 6) do {
+        print("Numero:");
+        print(i);
+        
+        if (i > 3) {
+            print("Mayor que 3");
+        } else {
+            print("Menor o igual a 3");
+        };
+        
+        i = i + 1;
+    };
+    
+    print("Programa terminado");
+}
+end 

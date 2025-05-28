@@ -1,0 +1,36 @@
+program test_functions;
+
+var
+    x, y : int;
+    result : int;
+
+void suma(a : int, b : int) [
+    var temp : int;
+    {
+        temp = a + b;
+        print(temp);
+    }
+];
+
+void multiplicacion(m : int, n : int) [
+    var producto : int;
+    {
+        producto = m * n;
+        print(producto);
+    }
+];
+
+main {
+    x = 5;
+    y = 3;
+    
+    print("Suma de 5 + 3:");
+    suma(x, y);
+    
+    print("Multiplicacion de 4 * 6:");
+    multiplicacion(4, 6);
+    
+    print("Suma de 10 + 20:");
+    suma(10, 20);
+}
+end 

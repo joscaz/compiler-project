@@ -1,0 +1,30 @@
+program fibonacci;
+
+var
+    n, a, b, temp, i, limite : int;
+
+main {
+    print("Serie de Fibonacci hasta 10 terminos:");
+    n = 10;
+    a = 0;
+    b = 1;
+    i = 1;
+    limite = n + 1;
+    
+    print("Fibonacci 0:");
+    print(a);
+    print("Fibonacci 1:");
+    print(b);
+    
+    while (i < n) do {
+        temp = a + b;
+        a = b;
+        b = temp;
+        print("Fibonacci siguiente:");
+        print(b);
+        i = i + 1;
+    };
+    
+    print("Serie completada");
+}
+end 

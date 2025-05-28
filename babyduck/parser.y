@@ -7,6 +7,7 @@
 #include "semantic_structures.h"
 #include "virtual_memory.h"
 #include "quadruple_generator.h"
+#include "virtual_machine.h"
 
 void yyerror(const char *s);
 int yylex(void);
@@ -21,6 +22,10 @@ QuadrupleGenerator quadGenerator;
 
 // for exp type checking
 DataType exprType;
+
+// for function calls
+char currentFunctionCall[MAX_FUNC_NAME];
+int currentParamIndex;
 %}
 
 %union {
@@ -70,6 +75,12 @@ programa:
     {
         printf("Compilation completed successfully\n");
         printGeneratedQuadruples(&quadGenerator);
+        
+        // Ejecutar la máquina virtual
+        printf("\n=== INICIANDO VM ===\n");
+        VirtualMachine vm;
+        initVirtualMachine(&vm, &quadGenerator.quadQueue, &quadGenerator.constTable);
+        executeProgram(&vm);
     }
 ;
 
@@ -343,15 +354,38 @@ f_call:
             char error[100];
             sprintf(error, "Semantic error: Function '%s' not declared", $1);
             yyerror(error);
+        } else {
+            // punto neuralgico - start function call (generate ERA)
+            startFunctionCall(&quadGenerator, $1, &funcDir);
         }
+        
+        // store function name for parameter processing
+        strcpy(currentFunctionCall, $1);
+        currentParamIndex = 0;
     }
 
-    LPAREN f_call_exp RPAREN SEMI
+    LPAREN f_call_exp RPAREN 
+    {
+        // punto neuralgico - end function call (generate GOSUB)
+        endFunctionCall(&quadGenerator, currentFunctionCall, &funcDir);
+    }
+    SEMI
 ;
 
 f_call_exp:
-    EXPRESION COMMA f_call_exp
+    EXPRESION 
+    {
+        // punto neuralgico - process function parameter
+        processFunctionParameter(&quadGenerator, currentParamIndex);
+        currentParamIndex++;
+    }
+    COMMA f_call_exp
     | EXPRESION
+    {
+        // punto neuralgico - process function parameter
+        processFunctionParameter(&quadGenerator, currentParamIndex);
+        currentParamIndex++;
+    }
     |
 ;
 

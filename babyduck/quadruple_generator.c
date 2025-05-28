@@ -320,3 +320,51 @@ void printGeneratedQuadruples(QuadrupleGenerator *generator) {
     printQuadruples(&generator->quadQueue);
     printConstantTable(&generator->constTable);
 }
+
+// ===== FUNCIONES PARA DECLARACIÓN E INVOCACIÓN DE FUNCIONES =====
+
+// Inicia una llamada a función - genera cuadruplo ERA (Espacio de Registro de Activación)
+void startFunctionCall(QuadrupleGenerator *generator, const char *funcName, FunctionDirectory *funcDir) {
+    Function *func = findFunction(funcDir, funcName);
+    if (func == NULL) {
+        fprintf(stderr, "Error: Function '%s' not found\n", funcName);
+        return;
+    }
+    
+    // Generar cuadruplo ERA para reservar espacio para la función
+    // El operando1 contiene el nombre de la función (usamos su dirección de inicio)
+    // El operando2 contiene el número de parámetros
+    addQuadruple(&generator->quadQueue, OP_ERA, func->startQuad, func->paramCount, -1);
+}
+
+// Procesa un parámetro de función - genera cuadruplo PARAM
+void processFunctionParameter(QuadrupleGenerator *generator, int paramIndex) {
+    if (isOperandStackEmpty(&generator->operands)) {
+        fprintf(stderr, "Error: No value for parameter %d\n", paramIndex);
+        return;
+    }
+    
+    // Obtener el valor del parámetro de la pila
+    int paramValue = popOperand(&generator->operands);
+    DataType paramType = popType(&generator->types);
+    
+    // Generar cuadruplo PARAM
+    // operando1: valor del parámetro
+    // operando2: índice del parámetro (para verificación de tipos)
+    // resultado: no se usa
+    addQuadruple(&generator->quadQueue, OP_PARAM, paramValue, paramIndex, -1);
+}
+
+// Termina una llamada a función - genera cuadruplo GOSUB
+void endFunctionCall(QuadrupleGenerator *generator, const char *funcName, FunctionDirectory *funcDir) {
+    Function *func = findFunction(funcDir, funcName);
+    if (func == NULL) {
+        fprintf(stderr, "Error: Function '%s' not found\n", funcName);
+        return;
+    }
+    
+    // Generar cuadruplo GOSUB para saltar a la función
+    // operando1: dirección de inicio de la función
+    // operando2 y resultado: no se usan
+    addQuadruple(&generator->quadQueue, OP_GOSUB, func->startQuad, -1, -1);
+}

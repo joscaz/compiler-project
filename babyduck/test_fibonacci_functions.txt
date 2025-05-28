@@ -1,0 +1,42 @@
+program fibonacci_functions;
+
+var
+    resultado : int;
+
+void calcular_fibonacci(n : int) [
+    var a, b, temp, i : int;
+    {
+        a = 0;
+        b = 1;
+        i = 2;
+        
+        print("Fibonacci 0:");
+        print(a);
+        print("Fibonacci 1:");
+        print(b);
+        
+        while (i < n) do {
+            temp = a + b;
+            a = b;
+            b = temp;
+            print("Fibonacci siguiente:");
+            print(b);
+            i = i + 1;
+        };
+    }
+];
+
+void mostrar_mensaje(valor : int) [
+    {
+        print("Calculando Fibonacci hasta:");
+        print(valor);
+    }
+];
+
+main {
+    resultado = 7;
+    mostrar_mensaje(resultado);
+    calcular_fibonacci(resultado);
+    print("Calculo completado");
+}
+end 

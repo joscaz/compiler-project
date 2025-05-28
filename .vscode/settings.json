@@ -2,6 +2,7 @@
     "files.associations": {
         "semantic_structures.h": "c",
         "datatype.h": "c",
-        "semantic_cube.h": "c"
+        "semantic_cube.h": "c",
+        "quadruple.h": "c"
     }
 }

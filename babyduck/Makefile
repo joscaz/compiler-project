@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -g
 
-OBJS = parser.tab.o lex.yy.o semantic_structures.o semantic_cube.o virtual_memory.o quadruple.o stack.o constant_table.o quadruple_generator.o
+OBJS = parser.tab.o lex.yy.o semantic_structures.o semantic_cube.o virtual_memory.o quadruple.o stack.o constant_table.o quadruple_generator.o virtual_machine.o
 
 all: babyduck
 
@@ -34,6 +34,9 @@ constant_table.o: constant_table.c constant_table.h datatype.h virtual_memory.h
 
 quadruple_generator.o: quadruple_generator.c quadruple_generator.h stack.h quadruple.h constant_table.h virtual_memory.h semantic_structures.h
 	$(CC) $(CFLAGS) -c quadruple_generator.c
+
+virtual_machine.o: virtual_machine.c virtual_machine.h quadruple.h constant_table.h semantic_structures.h
+	$(CC) $(CFLAGS) -c virtual_machine.c
 
 clean:
 	rm -f babyduck $(OBJS) parser.tab.c parser.tab.h lex.yy.c

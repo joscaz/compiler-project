@@ -52,6 +52,11 @@ void startWhileLoop(QuadrupleGenerator *generator);
 void processWhileCondition(QuadrupleGenerator *generator);
 void endWhileLoop(QuadrupleGenerator *generator);
 
+// Functions for function declaration and invocation
+void startFunctionCall(QuadrupleGenerator *generator, const char *funcName, FunctionDirectory *funcDir);
+void processFunctionParameter(QuadrupleGenerator *generator, int paramIndex);
+void endFunctionCall(QuadrupleGenerator *generator, const char *funcName, FunctionDirectory *funcDir);
+
 void printGeneratedQuadruples(QuadrupleGenerator *generator);
 
 #endif // QUADRUPLE_GENERATOR_H 

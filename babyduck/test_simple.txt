@@ -1,0 +1,11 @@
+program test_simple;
+
+var
+    x : int;
+
+main {
+    x = 5;
+    print("Hola mundo");
+    print(x);
+}
+end 
