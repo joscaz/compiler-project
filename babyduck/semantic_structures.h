@@ -44,7 +44,7 @@ typedef struct {
     int count; // function counter
     VarTable globalVars; // global vars table
 } FunctionDirectory;
-
+// --- FUNCIONES -- 
 // init func dir
 void initFunctionDirectory(FunctionDirectory *dir);
 
@@ -57,6 +57,13 @@ int addFunction(FunctionDirectory *dir, const char *name);
 // Add param to a function
 int addParameter(Function *func, const char *name, DataType type, int address);
 
+// Search for variable
+Variable* findVariable(FunctionDirectory *dir, const char *funcName, const char *varName);
+
+// Search for param in function
+Variable* findParam(Function *func, const char *name);
+
+// --- VARIABLES ---
 // Init variables table
 void initVarTable(VarTable *table);
 
@@ -65,11 +72,5 @@ Variable* findVar(VarTable *table, const char *name);
 
 // Add variable to table
 int addVar(VarTable *table, const char *name, DataType type, int address);
-
-// Search for variable
-Variable* findVariable(FunctionDirectory *dir, const char *funcName, const char *varName);
-
-// Search for param in function
-Variable* findParam(Function *func, const char *name);
 
 #endif // SEMANTIC_STRUCTURES_H
