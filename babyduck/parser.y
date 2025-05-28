@@ -26,6 +26,7 @@ DataType exprType;
 // for function calls
 char currentFunctionCall[MAX_FUNC_NAME];
 int currentParamIndex;
+int mainStartQuad = 0; // Posición donde empieza el main
 %}
 
 %union {
@@ -70,9 +71,14 @@ programa:
     SEMI DEC_VAR DEC_FUN MAIN 
     {
         strcpy(currentFunction, "main");
+        // Guardar posición donde empieza el main
+        mainStartQuad = quadGenerator.quadQueue.count;
     }
     BODY END
     {
+        // Agregar cuádruplo EOF al final del programa
+        addQuadruple(&quadGenerator.quadQueue, OP_EOF, -1, -1, -1);
+        
         printf("Compilation completed successfully\n");
         printGeneratedQuadruples(&quadGenerator);
         
@@ -80,6 +86,10 @@ programa:
         printf("\n=== INICIANDO VM ===\n");
         VirtualMachine vm;
         initVirtualMachine(&vm, &quadGenerator.quadQueue, &quadGenerator.constTable);
+        
+        // Empezar ejecución en el main en lugar del cuádruplo 0
+        vm.instructionPointer = mainStartQuad;
+        
         executeProgram(&vm);
     }
 ;

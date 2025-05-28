@@ -58,6 +58,7 @@ void executeParam(VirtualMachine *vm, Quadruple *quad);
 void executeGosub(VirtualMachine *vm, Quadruple *quad);
 void executeReturn(VirtualMachine *vm, Quadruple *quad);
 void executeEndProc(VirtualMachine *vm, Quadruple *quad);
+void executeEOF(VirtualMachine *vm, Quadruple *quad);
 
 // Funciones de debug
 void printMemoryState(VirtualMachine *vm);

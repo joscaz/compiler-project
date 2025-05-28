@@ -1,0 +1,13 @@
+program TestWhileComplex;
+var contador, limite : int;
+main
+{
+    contador = 0;
+    limite = 5;
+    while (contador < limite) do {
+        print(contador);
+        contador = contador + 1;
+    };
+    print(99); // Para marcar el final del while
+}
+end

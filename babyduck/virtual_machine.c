@@ -146,6 +146,10 @@ void executeQuadruple(VirtualMachine *vm, Quadruple *quad) {
             executeEndProc(vm, quad);
             break;
             
+        case OP_EOF:
+            executeEOF(vm, quad);
+            break;
+            
         default:
             fprintf(stderr, "Error: Operador no implementado: %s\n", 
                     operatorToString(quad->operador));
@@ -307,7 +311,6 @@ void executePrint(VirtualMachine *vm, Quadruple *quad) {
     }
 }
 
-// Ejecuta ERA (Espacio de Registro de Activación)
 void executeERA(VirtualMachine *vm, Quadruple *quad) {
     // Reservar espacio en la pila para la nueva función
     // En esta implementación simplificada, solo incrementamos el stack pointer
@@ -316,10 +319,12 @@ void executeERA(VirtualMachine *vm, Quadruple *quad) {
     printf("ERA: Reservando espacio para función\n");
 }
 
-// Ejecuta PARAM (pasar parámetro)
 void executeParam(VirtualMachine *vm, Quadruple *quad) {
     int paramValue = getValue(vm, quad->operand1);
     int paramIndex = quad->operand2;
+    
+    // DEBUG: Agregar información de debugging
+    printf("DEBUG PARAM: dirección %d, valor obtenido = %d\n", quad->operand1, paramValue);
     
     // Copiar el parámetro al espacio de parámetros de la función
     // Los parámetros empiezan en la dirección 3000 (L_INT base)
@@ -329,7 +334,6 @@ void executeParam(VirtualMachine *vm, Quadruple *quad) {
     printf("PARAM %d: valor = %d -> dirección %d\n", paramIndex, paramValue, paramAddress);
 }
 
-// Ejecuta GOSUB (llamada a subrutina)
 void executeGosub(VirtualMachine *vm, Quadruple *quad) {
     // Guardar contexto actual en la pila de llamadas
     vm->callStack.top++;
@@ -342,13 +346,11 @@ void executeGosub(VirtualMachine *vm, Quadruple *quad) {
     printf("GOSUB: Saltando a función en cuádruplo %d\n", quad->operand1);
 }
 
-// Ejecuta RETURN (retorno de función)
 void executeReturn(VirtualMachine *vm, Quadruple *quad) {
     // Esta operación no se usa en BabyDuck ya que no hay valores de retorno
     printf("RETURN: Función sin valor de retorno\n");
 }
 
-// Ejecuta ENDPROC (fin de procedimiento)
 void executeEndProc(VirtualMachine *vm, Quadruple *quad) {
     if (vm->callStack.top >= 0) {
         // Restaurar contexto
@@ -366,6 +368,11 @@ void executeEndProc(VirtualMachine *vm, Quadruple *quad) {
     }
 }
 
+void executeEOF(VirtualMachine *vm, Quadruple *quad) {
+    printf("EOF: Terminando ejecución del programa\n");
+    vm->running = 0;
+}
+
 // Funciones de debug
 void printMemoryState(VirtualMachine *vm) {
     printf("=== ESTADO DE LA MEMORIA ===\n");
@@ -373,7 +380,6 @@ void printMemoryState(VirtualMachine *vm) {
     printf("Base Pointer: %d\n", vm->memory.basePointer);
     printf("Instruction Pointer: %d\n", vm->instructionPointer);
     
-    // Mostrar algunas posiciones de memoria con valores
     printf("Memoria (primeras 20 posiciones con valores):\n");
     int count = 0;
     for (int i = 0; i < MEMORY_SIZE && count < 20; i++) {

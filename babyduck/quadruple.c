@@ -109,6 +109,7 @@ const char* operatorToString(QuadOperator op) {
         case OP_GOSUB:   return "GOSUB";
         case OP_RETURN:  return "RETURN";
         case OP_ENDPROC: return "ENDPROC";
+        case OP_EOF:    return "EOF";
         default:         return "UNKNOWN";
     }
 }

@@ -22,7 +22,8 @@ typedef enum {
     OP_PARAM = 13,
     OP_GOSUB = 14,   // go to subroutine
     OP_RETURN = 15,  // return from subroutine
-    OP_ENDPROC = 16  // end of procedure
+    OP_ENDPROC = 16, // end of procedure
+    OP_EOF = 17     // halt program execution
 } QuadOperator;
 
 // quadruple struct
