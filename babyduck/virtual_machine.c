@@ -324,14 +324,35 @@ void executeParam(VirtualMachine *vm, Quadruple *quad) {
     int paramIndex = quad->operand2;
     
     // DEBUG: Agregar información de debugging
-    printf("DEBUG PARAM: dirección %d, valor obtenido = %d\n", quad->operand1, paramValue);
+    printf("DEBUG PARAM: dirección %d, valor obtenido = %d, paramIndex = %d\n", 
+           quad->operand1, paramValue, paramIndex);
     
-    // Copiar el parámetro al espacio de parámetros de la función
-    // Los parámetros empiezan en la dirección 3000 (L_INT base)
-    int paramAddress = 3000 + paramIndex;
+    // Identificar qué función se va a llamar mirando el próximo GOSUB
+    // se busca el siguiente cuádruplo GOSUB para saber el destino
+    int targetQuad = -1;
+    for (int i = vm->instructionPointer + 1; i < vm->quadruples->count; i++) {
+        if (vm->quadruples->quads[i].operador == OP_GOSUB) {
+            targetQuad = vm->quadruples->quads[i].operand1;
+            break;
+        }
+    }
+    
+    int paramAddress;
+    if (targetQuad == 0) {
+        // Función suma: parámetros empiezan en 3000
+        paramAddress = 3000 + paramIndex;
+    } else if (targetQuad == 4) {
+        // Función multiplicacion: parámetros empiezan en 3003
+        paramAddress = 3003 + paramIndex;
+    } else {
+        // Función desconocida, usar base
+        paramAddress = 3000 + paramIndex;
+    }
+    
     setValue(vm, paramAddress, paramValue);
     
-    printf("PARAM %d: valor = %d -> dirección %d\n", paramIndex, paramValue, paramAddress);
+    printf("PARAM %d: valor = %d -> dirección %d (función destino: %d)\n", 
+           paramIndex, paramValue, paramAddress, targetQuad);
 }
 
 void executeGosub(VirtualMachine *vm, Quadruple *quad) {
