@@ -339,7 +339,6 @@ void executeParam(VirtualMachine *vm, Quadruple *quad) {
     }
     
     // Identificar qué función se va a llamar mirando el próximo GOSUB
-    // se busca el siguiente cuádruplo GOSUB para saber el destino
     int targetQuad = -1;
     for (int i = vm->instructionPointer + 1; i < vm->quadruples->count; i++) {
         if (vm->quadruples->quads[i].operador == OP_GOSUB) {
@@ -348,23 +347,41 @@ void executeParam(VirtualMachine *vm, Quadruple *quad) {
         }
     }
     
-    int paramAddress;
-    if (targetQuad == 0) {
-        // Función suma: parámetros empiezan en 3000
-        paramAddress = 3000 + paramIndex;
-    } else if (targetQuad == 4) {
-        // Función multiplicacion: parámetros empiezan en 3003
-        paramAddress = 3003 + paramIndex;
-    } else {
-        // Función desconocida, usar base
-        paramAddress = 3000 + paramIndex;
+    // Buscar automáticamente la dirección base de parámetros
+    int paramBaseAddress = 3000; // default
+    if (targetQuad >= 0) {
+        // Escanear los cuádruplos de la función para encontrar direcciones L_INT
+        int minAddress = 4000; // Buscar la menor dirección L_INT
+        for (int i = targetQuad; i < vm->quadruples->count; i++) {
+            Quadruple *q = &vm->quadruples->quads[i];
+            
+            // Parar al encontrar ENDPROC (fin de función)
+            if (q->operador == OP_ENDPROC) break;
+            
+            // Buscar direcciones L_INT en los operandos y encontrar la menor
+            if (q->operand1 >= 3000 && q->operand1 < 4000 && q->operand1 < minAddress) {
+                minAddress = q->operand1;
+            }
+            if (q->operand2 >= 3000 && q->operand2 < 4000 && q->operand2 < minAddress) {
+                minAddress = q->operand2;
+            }
+            if (q->res >= 3000 && q->res < 4000 && q->res < minAddress) {
+                minAddress = q->res;
+            }
+        }
+        if (minAddress < 4000) {
+            paramBaseAddress = minAddress;
+        }
     }
     
+    // Para el primer parámetro (index 0), usar la dirección base directamente
+    // Para parámetros subsecuentes, usar base + index
+    int paramAddress = paramBaseAddress + paramIndex;
     setValue(vm, paramAddress, paramValue);
     
     if (verbose_mode) {
-        printf("PARAM %d: valor = %d -> dirección %d (función destino: %d)\n", 
-               paramIndex, paramValue, paramAddress, targetQuad);
+        printf("PARAM %d: valor = %d -> dirección %d (función destino: %d, base: %d)\n", 
+               paramIndex, paramValue, paramAddress, targetQuad, paramBaseAddress);
     }
 }
 

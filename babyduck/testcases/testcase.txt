@@ -10,13 +10,13 @@ void multiply(a : int, b : float) [
         temp = a * b;
         print("Result of multiplication:", temp);
     }
-]
+];
 
 main {
     n = 5;
     result = 1;
     
-    /* Calcular factorial de n */
+    // Calcular factorial de n
     while (n > 0) do {
         result = result * n;
         n = n - 1;
@@ -27,7 +27,7 @@ main {
     x = 3.5;
     y = 2.0;
     
-    /* Llamar a la función */
+    // Llamar a la función
     multiply(result, x);
     
     if (result != 120) {

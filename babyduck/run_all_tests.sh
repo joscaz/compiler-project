@@ -10,17 +10,9 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 BOLD='\033[1m'
 
-# Banner
-echo -e "${PURPLE}${BOLD}"
-echo "╔══════════════════════════════════════════════════════════════════════╗"
-echo "║                      🚀 BABYDUCK COMPILER TESTS 🚀                  ║"
-echo "║                         Test Suite Runner                           ║"
-echo "╚══════════════════════════════════════════════════════════════════════╝"
-echo -e "${NC}"
-
 # Verificar que el compilador existe
 if [ ! -f "./babyduck" ]; then
-    echo -e "${RED}❌ Error: Compilador 'babyduck' no encontrado. Ejecuta 'make' primero.${NC}"
+    echo -e "${RED}Error: Compilador no encontrado. Ejecuta 'make' primero.${NC}"
     exit 1
 fi
 
@@ -34,27 +26,27 @@ run_test() {
     local test_file=$1
     local test_name=$(basename "$test_file" .txt)
     
-    echo -e "${CYAN}${BOLD}📋 Test: ${test_name}${NC}"
-    echo -e "${YELLOW}📁 Archivo: $test_file${NC}"
+    echo -e "${CYAN}${BOLD}Test: ${test_name}${NC}"
+    echo -e "${YELLOW}Archivo: $test_file${NC}"
     
     # Mostrar contenido del test (primeras 5 líneas)
-    echo -e "${BLUE}📄 Contenido:${NC}"
+    echo -e "${BLUE}Contenido:${NC}"
     head -5 "$test_file" | sed 's/^/   /'
     if [ $(wc -l < "$test_file") -gt 5 ]; then
         echo "   ..."
     fi
     
-    echo -e "${GREEN}🏃 Ejecutando...${NC}"
+    echo -e "${GREEN} Ejecutando...${NC}"
     echo "----------------------------------------"
     
     # Ejecutar el test en modo silencioso
     if ./babyduck -q < "$test_file" 2>/dev/null; then
         echo "----------------------------------------"
-        echo -e "${GREEN}✅ ÉXITO${NC}"
+        echo -e "${GREEN}ÉXITO${NC}"
         ((PASSED_TESTS++))
     else
         echo "----------------------------------------"
-        echo -e "${RED}❌ ERROR${NC}"
+        echo -e "${RED}ERROR${NC}"
         ((FAILED_TESTS++))
     fi
     
@@ -65,26 +57,24 @@ run_test() {
 # Función para mostrar estadísticas
 show_stats() {
     echo -e "${PURPLE}${BOLD}"
-    echo "╔══════════════════════════════════════════════════════════════════════╗"
-    echo "║                           📊 ESTADÍSTICAS                           ║"
-    echo "╚══════════════════════════════════════════════════════════════════════╝"
+    echo "ESTADÍSTICAS"
     echo -e "${NC}"
     
-    echo -e "${BLUE}📈 Total de tests: ${BOLD}$TOTAL_TESTS${NC}"
-    echo -e "${GREEN}✅ Tests exitosos: ${BOLD}$PASSED_TESTS${NC}"
-    echo -e "${RED}❌ Tests fallidos: ${BOLD}$FAILED_TESTS${NC}"
+    echo -e "${BLUE}Total de tests: ${BOLD}$TOTAL_TESTS${NC}"
+    echo -e "${GREEN}Tests exitosos: ${BOLD}$PASSED_TESTS${NC}"
+    echo -e "${RED}Tests fallidos: ${BOLD}$FAILED_TESTS${NC}"
     
     if [ $FAILED_TESTS -eq 0 ]; then
-        echo -e "${GREEN}${BOLD}🎉 ¡TODOS LOS TESTS PASARON! 🎉${NC}"
+        echo -e "${GREEN}${BOLD}Todos los tests pasaron correctamente${NC}"
     else
-        echo -e "${YELLOW}⚠️  Algunos tests fallaron. Revisa los errores arriba.${NC}"
+        echo -e "${YELLOW}lgunos tests fallaron. Revisa los errores arriba.${NC}"
     fi
     
     echo ""
 }
 
 # Categorías de tests
-echo -e "${YELLOW}${BOLD}🔍 Ejecutando tests por categorías...${NC}"
+echo -e "${YELLOW}${BOLD}Ejecutando tests por categorías...${NC}"
 echo ""
 
 # Tests básicos
@@ -131,7 +121,5 @@ done
 show_stats
 
 # Mensaje final
-echo -e "${CYAN}${BOLD}💡 Tip: Para ver output con debug, usa './babyduck < archivo.txt'${NC}"
-echo -e "${CYAN}${BOLD}💡 Para modo silencioso, usa './babyduck -q < archivo.txt'${NC}"
-echo ""
-echo -e "${PURPLE}${BOLD}¡Gracias por usar BabyDuck Compiler! 🦆${NC}" 
+echo -e "${CYAN}${BOLD}Para ver output con debug, usa './babyduck < archivo.txt'${NC}"
+echo -e "${CYAN}${BOLD}Para modo silencioso (imprime output unicamente), usa './babyduck -q < archivo.txt'${NC}"
