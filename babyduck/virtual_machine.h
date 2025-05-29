@@ -7,6 +7,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// Variable externa para controlar verbosidad
+extern int verbose_mode;
+
 // Tamaño de la memoria de ejecución
 #define MEMORY_SIZE 15000
 

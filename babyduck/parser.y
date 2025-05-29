@@ -27,6 +27,9 @@ DataType exprType;
 char currentFunctionCall[MAX_FUNC_NAME];
 int currentParamIndex;
 int mainStartQuad = 0; // Posición donde empieza el main
+
+// Control de verbosidad
+int verbose_mode = 1; // 1 = verbose (default), 0 = quiet
 %}
 
 %union {
@@ -66,7 +69,9 @@ programa:
     }
     PROGRAM ID 
     {
-        printf("Compiling program %s\n", $3);
+        if (verbose_mode) {
+            printf("Compiling program %s\n", $3);
+        }
     }
     SEMI DEC_VAR DEC_FUN MAIN 
     {
@@ -79,11 +84,13 @@ programa:
         // Agregar cuádruplo EOF al final del programa
         addQuadruple(&quadGenerator.quadQueue, OP_EOF, -1, -1, -1);
         
-        printf("Compilation completed successfully\n");
-        printGeneratedQuadruples(&quadGenerator);
+        if (verbose_mode) {
+            printf("Compilation completed successfully\n");
+            printGeneratedQuadruples(&quadGenerator);
+            printf("\n=== INICIANDO VM ===\n");
+        }
         
         // Ejecutar la máquina virtual
-        printf("\n=== INICIANDO VM ===\n");
         VirtualMachine vm;
         initVirtualMachine(&vm, &quadGenerator.quadQueue, &quadGenerator.constTable);
         
@@ -521,7 +528,16 @@ FACTOR:
 
 %%
 
-int main(void) {
+int main(int argc, char *argv[]) {
+    // Procesar argumentos de línea de comandos
+    if (argc > 1 && (strcmp(argv[1], "-q") == 0 || strcmp(argv[1], "--quiet") == 0)) {
+        verbose_mode = 0;
+        if (verbose_mode) printf("Modo silencioso activado\n");
+    } else if (argc > 1 && (strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--verbose") == 0)) {
+        verbose_mode = 1;
+        if (verbose_mode) printf("Modo verbose activado\n");
+    }
+    
     return yyparse();
 }
 

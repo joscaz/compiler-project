@@ -69,25 +69,32 @@ void setValue(VirtualMachine *vm, int address, int value) {
 
 // Ejecuta el programa completo
 void executeProgram(VirtualMachine *vm) {
-    printf("=== INICIANDO EJECUCIÓN DE LA MÁQUINA VIRTUAL ===\n");
+    if (verbose_mode) {
+        printf("=== INICIANDO EJECUCIÓN DE LA MÁQUINA VIRTUAL ===\n");
+    }
     
     while (vm->running && vm->instructionPointer < vm->quadruples->count) {
         Quadruple *currentQuad = &vm->quadruples->quads[vm->instructionPointer];
         
-        printf("Ejecutando cuádruplo %d: %s\n", vm->instructionPointer, 
-               operatorToString(currentQuad->operador));
+        if (verbose_mode) {
+            printf("Ejecutando cuádruplo %d: %s\n", vm->instructionPointer, 
+                   operatorToString(currentQuad->operador));
+        }
         
         executeQuadruple(vm, currentQuad);
         
         // Avanzar al siguiente cuádruplo (a menos que sea un salto)
         if (currentQuad->operador != OP_GOTO && 
             currentQuad->operador != OP_GOTOF && 
-            currentQuad->operador != OP_GOSUB) {
+            currentQuad->operador != OP_GOSUB &&
+            currentQuad->operador != OP_ENDPROC) {
             vm->instructionPointer++;
         }
     }
     
-    printf("=== EJECUCIÓN COMPLETADA ===\n");
+    if (verbose_mode) {
+        printf("=== EJECUCIÓN COMPLETADA ===\n");
+    }
 }
 
 // Ejecuta un cuádruplo específico
@@ -316,7 +323,9 @@ void executeERA(VirtualMachine *vm, Quadruple *quad) {
     // En esta implementación simplificada, solo incrementamos el stack pointer
     vm->memory.stackPointer += 100; // espacio fijo por función
     
-    printf("ERA: Reservando espacio para función\n");
+    if (verbose_mode) {
+        printf("ERA: Reservando espacio para función\n");
+    }
 }
 
 void executeParam(VirtualMachine *vm, Quadruple *quad) {
@@ -324,8 +333,10 @@ void executeParam(VirtualMachine *vm, Quadruple *quad) {
     int paramIndex = quad->operand2;
     
     // DEBUG: Agregar información de debugging
-    printf("DEBUG PARAM: dirección %d, valor obtenido = %d, paramIndex = %d\n", 
-           quad->operand1, paramValue, paramIndex);
+    if (verbose_mode) {
+        printf("DEBUG PARAM: dirección %d, valor obtenido = %d, paramIndex = %d\n", 
+               quad->operand1, paramValue, paramIndex);
+    }
     
     // Identificar qué función se va a llamar mirando el próximo GOSUB
     // se busca el siguiente cuádruplo GOSUB para saber el destino
@@ -351,8 +362,10 @@ void executeParam(VirtualMachine *vm, Quadruple *quad) {
     
     setValue(vm, paramAddress, paramValue);
     
-    printf("PARAM %d: valor = %d -> dirección %d (función destino: %d)\n", 
-           paramIndex, paramValue, paramAddress, targetQuad);
+    if (verbose_mode) {
+        printf("PARAM %d: valor = %d -> dirección %d (función destino: %d)\n", 
+               paramIndex, paramValue, paramAddress, targetQuad);
+    }
 }
 
 void executeGosub(VirtualMachine *vm, Quadruple *quad) {
@@ -364,12 +377,16 @@ void executeGosub(VirtualMachine *vm, Quadruple *quad) {
     // Saltar a la función
     vm->instructionPointer = quad->operand1;
     
-    printf("GOSUB: Saltando a función en cuádruplo %d\n", quad->operand1);
+    if (verbose_mode) {
+        printf("GOSUB: Saltando a función en cuádruplo %d\n", quad->operand1);
+    }
 }
 
 void executeReturn(VirtualMachine *vm, Quadruple *quad) {
     // Esta operación no se usa en BabyDuck ya que no hay valores de retorno
-    printf("RETURN: Función sin valor de retorno\n");
+    if (verbose_mode) {
+        printf("RETURN: Función sin valor de retorno\n");
+    }
 }
 
 void executeEndProc(VirtualMachine *vm, Quadruple *quad) {
@@ -379,18 +396,24 @@ void executeEndProc(VirtualMachine *vm, Quadruple *quad) {
         vm->memory.basePointer = vm->callStack.basePointers[vm->callStack.top];
         vm->callStack.top--;
         
-        printf("ENDPROC: Retornando a cuádruplo %d\n", vm->instructionPointer);
+        if (verbose_mode) {
+            printf("ENDPROC: Retornando a cuádruplo %d\n", vm->instructionPointer);
+        }
         // No incrementar IP aquí, ya se estableció la dirección de retorno
         return;
     } else {
         // Si no hay llamadas en la pila, solo continuar (no terminar el programa)
-        printf("ENDPROC: Fin de función sin llamada activa\n");
+        if (verbose_mode) {
+            printf("ENDPROC: Fin de función sin llamada activa\n");
+        }
         vm->instructionPointer++;
     }
 }
 
 void executeEOF(VirtualMachine *vm, Quadruple *quad) {
-    printf("EOF: Terminando ejecución del programa\n");
+    if (verbose_mode) {
+        printf("EOF: Terminando ejecución del programa\n");
+    }
     vm->running = 0;
 }
 

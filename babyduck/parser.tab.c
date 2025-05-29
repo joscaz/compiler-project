@@ -171,6 +171,9 @@ char currentFunctionCall[MAX_FUNC_NAME];
 int currentParamIndex;
 int mainStartQuad = 0; // Posición donde empieza el main
 
+// Control de verbosidad
+int verbose_mode = 1; // 1 = verbose (default), 0 = quiet
+
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -192,7 +195,7 @@ int mainStartQuad = 0; // Posición donde empieza el main
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 32 "parser.y"
+#line 35 "parser.y"
 {
     int    ival;
     float  fval;
@@ -200,7 +203,7 @@ typedef union YYSTYPE
     DataType type;
 }
 /* Line 193 of yacc.c.  */
-#line 204 "parser.tab.c"
+#line 207 "parser.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -213,7 +216,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 217 "parser.tab.c"
+#line 220 "parser.tab.c"
 
 #ifdef short
 # undef short
@@ -527,14 +530,14 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    58,    58,    68,    72,    58,    98,    99,   103,   108,
-     107,   116,   115,   144,   175,   176,   180,   184,   191,   192,
-     197,   220,   196,   232,   231,   252,   256,   257,   261,   265,
-     266,   270,   271,   272,   273,   274,   279,   278,   297,   301,
-     310,   296,   322,   321,   332,   337,   342,   351,   336,   360,
-     378,   359,   387,   386,   393,   399,   403,   407,   408,   412,
-     417,   425,   429,   434,   439,   447,   451,   456,   464,   468,
-     473,   481,   485,   489,   493,   497,   510,   515
+       0,    61,    61,    71,    77,    61,   105,   106,   110,   115,
+     114,   123,   122,   151,   182,   183,   187,   191,   198,   199,
+     204,   227,   203,   239,   238,   259,   263,   264,   268,   272,
+     273,   277,   278,   279,   280,   281,   286,   285,   304,   308,
+     317,   303,   329,   328,   339,   344,   349,   358,   343,   367,
+     385,   366,   394,   393,   400,   406,   410,   414,   415,   419,
+     424,   432,   436,   441,   446,   454,   458,   463,   471,   475,
+     480,   488,   492,   496,   500,   504,   517,   522
 };
 #endif
 
@@ -1525,7 +1528,7 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 58 "parser.y"
+#line 61 "parser.y"
     {
         // Init semantic structures
         initSemanticCube();
@@ -1538,14 +1541,16 @@ yyreduce:
     break;
 
   case 3:
-#line 68 "parser.y"
+#line 71 "parser.y"
     {
-        printf("Compiling program %s\n", (yyvsp[(3) - (3)].sval));
+        if (verbose_mode) {
+            printf("Compiling program %s\n", (yyvsp[(3) - (3)].sval));
+        }
     ;}
     break;
 
   case 4:
-#line 72 "parser.y"
+#line 77 "parser.y"
     {
         strcpy(currentFunction, "main");
         // Guardar posición donde empieza el main
@@ -1554,16 +1559,18 @@ yyreduce:
     break;
 
   case 5:
-#line 78 "parser.y"
+#line 83 "parser.y"
     {
         // Agregar cuádruplo EOF al final del programa
         addQuadruple(&quadGenerator.quadQueue, OP_EOF, -1, -1, -1);
         
-        printf("Compilation completed successfully\n");
-        printGeneratedQuadruples(&quadGenerator);
+        if (verbose_mode) {
+            printf("Compilation completed successfully\n");
+            printGeneratedQuadruples(&quadGenerator);
+            printf("\n=== INICIANDO VM ===\n");
+        }
         
         // Ejecutar la máquina virtual
-        printf("\n=== INICIANDO VM ===\n");
         VirtualMachine vm;
         initVirtualMachine(&vm, &quadGenerator.quadQueue, &quadGenerator.constTable);
         
@@ -1575,14 +1582,14 @@ yyreduce:
     break;
 
   case 9:
-#line 108 "parser.y"
+#line 115 "parser.y"
     {
         currentType = (yyvsp[(3) - (3)].type);
     ;}
     break;
 
   case 11:
-#line 116 "parser.y"
+#line 123 "parser.y"
     {
         // punto neuralgico - add var to cur context
         int address;
@@ -1613,7 +1620,7 @@ yyreduce:
     break;
 
   case 13:
-#line 145 "parser.y"
+#line 152 "parser.y"
     {
         // Punto neuralgico - add var to cur context
         int address;
@@ -1644,21 +1651,21 @@ yyreduce:
     break;
 
   case 16:
-#line 181 "parser.y"
+#line 188 "parser.y"
     {
         (yyval.type) = TYPE_INT;
     ;}
     break;
 
   case 17:
-#line 185 "parser.y"
+#line 192 "parser.y"
     {
         (yyval.type) = TYPE_FLOAT;
     ;}
     break;
 
   case 20:
-#line 197 "parser.y"
+#line 204 "parser.y"
     {
         // punto neuralgico - add func to funcDir
         int res = addFunction(&funcDir, (yyvsp[(2) - (2)].sval));
@@ -1684,7 +1691,7 @@ yyreduce:
     break;
 
   case 21:
-#line 220 "parser.y"
+#line 227 "parser.y"
     {
         // add ENDPROC quad
         addQuadruple(&quadGenerator.quadQueue, OP_ENDPROC, -1, -1, -1);
@@ -1695,7 +1702,7 @@ yyreduce:
     break;
 
   case 23:
-#line 232 "parser.y"
+#line 239 "parser.y"
     {
         // punto neuralgico - add param to function
         Function *func = findFunction(&funcDir, currentFunction);
@@ -1718,7 +1725,7 @@ yyreduce:
     break;
 
   case 36:
-#line 279 "parser.y"
+#line 286 "parser.y"
     {
         // check if var exists
         Variable *var = findVariable(&funcDir, currentFunction, (yyvsp[(1) - (2)].sval));
@@ -1731,7 +1738,7 @@ yyreduce:
     break;
 
   case 37:
-#line 289 "parser.y"
+#line 296 "parser.y"
     {
         // generate assign quad
         generateAssignment(&quadGenerator, (yyvsp[(1) - (5)].sval), &funcDir, currentFunction);
@@ -1739,14 +1746,14 @@ yyreduce:
     break;
 
   case 38:
-#line 297 "parser.y"
+#line 304 "parser.y"
     {
         // process the expression before evaluating it
     ;}
     break;
 
   case 39:
-#line 301 "parser.y"
+#line 308 "parser.y"
     {
         if ((yyvsp[(4) - (4)].type) != TYPE_BOOL) {
             yyerror("Semantic error: if condition must be boolean expression");
@@ -1758,7 +1765,7 @@ yyreduce:
     break;
 
   case 40:
-#line 310 "parser.y"
+#line 317 "parser.y"
     {
         // For an IF with no ELSE, we need to fill the jump location
         // to the end of the IF statement
@@ -1769,7 +1776,7 @@ yyreduce:
     break;
 
   case 42:
-#line 322 "parser.y"
+#line 329 "parser.y"
     {
         // Process the start of ELSE - generate jump to end of if-else
         // and fill the GOTOF jump location
@@ -1778,7 +1785,7 @@ yyreduce:
     break;
 
   case 43:
-#line 328 "parser.y"
+#line 335 "parser.y"
     {
         // Fill the GOTO jump location at the end of if-else
         endIfStatement(&quadGenerator);
@@ -1786,7 +1793,7 @@ yyreduce:
     break;
 
   case 45:
-#line 337 "parser.y"
+#line 344 "parser.y"
     {
         // Mark the start of the while loop
         startWhileLoop(&quadGenerator);
@@ -1794,7 +1801,7 @@ yyreduce:
     break;
 
   case 46:
-#line 342 "parser.y"
+#line 349 "parser.y"
     {
         if ((yyvsp[(4) - (4)].type) != TYPE_BOOL) {
             yyerror("Semantic error: while condition must be boolean expression");
@@ -1806,7 +1813,7 @@ yyreduce:
     break;
 
   case 47:
-#line 351 "parser.y"
+#line 358 "parser.y"
     {
         // Generate GOTO to beginning of while loop and fill the GOTOF jump
         endWhileLoop(&quadGenerator);
@@ -1814,7 +1821,7 @@ yyreduce:
     break;
 
   case 49:
-#line 360 "parser.y"
+#line 367 "parser.y"
     {
         // check that function is declared
         Function *func = findFunction(&funcDir, (yyvsp[(1) - (1)].sval));
@@ -1834,7 +1841,7 @@ yyreduce:
     break;
 
   case 50:
-#line 378 "parser.y"
+#line 385 "parser.y"
     {
         // punto neuralgico - end function call (generate GOSUB)
         endFunctionCall(&quadGenerator, currentFunctionCall, &funcDir);
@@ -1842,15 +1849,6 @@ yyreduce:
     break;
 
   case 52:
-#line 387 "parser.y"
-    {
-        // punto neuralgico - process function parameter
-        processFunctionParameter(&quadGenerator, currentParamIndex);
-        currentParamIndex++;
-    ;}
-    break;
-
-  case 54:
 #line 394 "parser.y"
     {
         // punto neuralgico - process function parameter
@@ -1859,8 +1857,17 @@ yyreduce:
     ;}
     break;
 
+  case 54:
+#line 401 "parser.y"
+    {
+        // punto neuralgico - process function parameter
+        processFunctionParameter(&quadGenerator, currentParamIndex);
+        currentParamIndex++;
+    ;}
+    break;
+
   case 59:
-#line 413 "parser.y"
+#line 420 "parser.y"
     {
         // generate print quad
         generatePrint(&quadGenerator);
@@ -1868,7 +1875,7 @@ yyreduce:
     break;
 
   case 60:
-#line 418 "parser.y"
+#line 425 "parser.y"
     {
         processStringConstant(&quadGenerator, (yyvsp[(1) - (1)].sval));
         generatePrint(&quadGenerator);
@@ -1876,14 +1883,14 @@ yyreduce:
     break;
 
   case 61:
-#line 426 "parser.y"
+#line 433 "parser.y"
     {
         (yyval.type) = (yyvsp[(1) - (1)].type);
     ;}
     break;
 
   case 62:
-#line 430 "parser.y"
+#line 437 "parser.y"
     {
         processRelationalOperator(&quadGenerator, OP_LT);
         (yyval.type) = TYPE_BOOL;
@@ -1891,7 +1898,7 @@ yyreduce:
     break;
 
   case 63:
-#line 435 "parser.y"
+#line 442 "parser.y"
     {
         processRelationalOperator(&quadGenerator, OP_GT);
         (yyval.type) = TYPE_BOOL;
@@ -1899,7 +1906,7 @@ yyreduce:
     break;
 
   case 64:
-#line 440 "parser.y"
+#line 447 "parser.y"
     {
         processRelationalOperator(&quadGenerator, OP_NEQ);
         (yyval.type) = TYPE_BOOL;
@@ -1907,14 +1914,14 @@ yyreduce:
     break;
 
   case 65:
-#line 448 "parser.y"
+#line 455 "parser.y"
     {
         (yyval.type) = (yyvsp[(1) - (1)].type);
     ;}
     break;
 
   case 66:
-#line 452 "parser.y"
+#line 459 "parser.y"
     {
         processOperator(&quadGenerator, OP_PLUS);
         (yyval.type) = peekType(&quadGenerator.types);
@@ -1922,7 +1929,7 @@ yyreduce:
     break;
 
   case 67:
-#line 457 "parser.y"
+#line 464 "parser.y"
     {
         processOperator(&quadGenerator, OP_MINUS);
         (yyval.type) = peekType(&quadGenerator.types);
@@ -1930,14 +1937,14 @@ yyreduce:
     break;
 
   case 68:
-#line 465 "parser.y"
+#line 472 "parser.y"
     {
         (yyval.type) = (yyvsp[(1) - (1)].type);
     ;}
     break;
 
   case 69:
-#line 469 "parser.y"
+#line 476 "parser.y"
     {
         processOperator(&quadGenerator, OP_MULT);
         (yyval.type) = peekType(&quadGenerator.types);
@@ -1945,7 +1952,7 @@ yyreduce:
     break;
 
   case 70:
-#line 474 "parser.y"
+#line 481 "parser.y"
     {
         processOperator(&quadGenerator, OP_DIV);
         (yyval.type) = peekType(&quadGenerator.types);
@@ -1953,28 +1960,28 @@ yyreduce:
     break;
 
   case 72:
-#line 486 "parser.y"
+#line 493 "parser.y"
     {
         (yyval.type) = (yyvsp[(2) - (3)].type);
     ;}
     break;
 
   case 73:
-#line 490 "parser.y"
+#line 497 "parser.y"
     {
     (yyval.type) = (yyvsp[(2) - (2)].type);
   ;}
     break;
 
   case 74:
-#line 494 "parser.y"
+#line 501 "parser.y"
     {
     (yyval.type) = (yyvsp[(2) - (2)].type);
   ;}
     break;
 
   case 75:
-#line 498 "parser.y"
+#line 505 "parser.y"
     {
     Variable *var = findVariable(&funcDir, currentFunction, (yyvsp[(1) - (1)].sval));
     if (var == NULL) {
@@ -1990,7 +1997,7 @@ yyreduce:
     break;
 
   case 76:
-#line 511 "parser.y"
+#line 518 "parser.y"
     {
     processIntConstant(&quadGenerator, (yyvsp[(1) - (1)].ival));
     (yyval.type) = TYPE_INT;
@@ -1998,7 +2005,7 @@ yyreduce:
     break;
 
   case 77:
-#line 516 "parser.y"
+#line 523 "parser.y"
     {
     processFloatConstant(&quadGenerator, (yyvsp[(1) - (1)].fval));
     (yyval.type) = TYPE_FLOAT;
@@ -2007,7 +2014,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 2011 "parser.tab.c"
+#line 2018 "parser.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2221,10 +2228,19 @@ yyreturn:
 }
 
 
-#line 522 "parser.y"
+#line 529 "parser.y"
 
 
-int main(void) {
+int main(int argc, char *argv[]) {
+    // Procesar argumentos de línea de comandos
+    if (argc > 1 && (strcmp(argv[1], "-q") == 0 || strcmp(argv[1], "--quiet") == 0)) {
+        verbose_mode = 0;
+        if (verbose_mode) printf("Modo silencioso activado\n");
+    } else if (argc > 1 && (strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--verbose") == 0)) {
+        verbose_mode = 1;
+        if (verbose_mode) printf("Modo verbose activado\n");
+    }
+    
     return yyparse();
 }
 
